@@ -5,6 +5,8 @@ services:
   db:
     image: postgres
     restart: always
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_PASSWORD: ${DB_PASS}
 
@@ -20,10 +22,10 @@ services:
   backend:
     build: .
     command: yarn dev:debug
-    ports: 
+    ports:
       - "3333:3333"
       - 9229:9229
-    volumes: 
+    volumes:
       - .:/usr/app
     depends_on:
       - db
