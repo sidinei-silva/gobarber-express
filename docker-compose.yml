@@ -1,0 +1,31 @@
+# Use postgres/example user/password credentials
+version: '3.7'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASS}
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8082:8080
+    depends_on:
+      - db
+
+
+  backend:
+    build: .
+    command: yarn dev:debug
+    ports:
+      - "3333:3333"
+      - 9229:9229
+    volumes:
+      - .:/usr/app
+    depends_on:
+      - db
