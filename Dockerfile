@@ -1,8 +1,18 @@
-FROM node:alpine
+FROM node:lts-alpine
 
-WORKDIR /usr/app
+RUN mkdir -p /home/node/api/node_modules && chown -R node:node /home/node/api
 
-COPY package.json yarn.lock ./
+WORKDIR /home/node/api
+
+COPY package.json yarn.* ./
+
+USER node
+
 RUN yarn
 
-COPY . . 
+COPY --chown=node:node . .
+COPY src/config/database.docker.js src/config/database.js
+
+EXPOSE 3333
+
+CMD ["yarn", "start", "development"]
