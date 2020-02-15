@@ -8,8 +8,8 @@ services:
     command: yarn start:${NODE_ENV}
     volumes:
       - .:/home/node/api
+      - ./node_modules:/home/node/api/node_modules
       - ./src/config/database.docker.js:/home/node/api/src/config/database.js
-      - /home/node/api/node_modules
     ports:
       - '3333:3333'
     depends_on:
