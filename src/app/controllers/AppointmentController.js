@@ -118,6 +118,18 @@ class AppointmentController {
       content: `Novo agendamento de ${name} para o dia ${formattedDate}`,
       user: provider_id,
     });
+
+    await Mail.sendMail({
+      to: `${isProvider.name} <${isProvider.email}>`,
+      subject: 'Novo Agendamento',
+      template: 'newAppointment',
+      context: {
+        provider: isProvider.name,
+        user: name,
+        date: formattedDate,
+      },
+    });
+
     return res.json(appointment);
   }
 
