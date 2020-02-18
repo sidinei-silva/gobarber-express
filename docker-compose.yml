@@ -14,6 +14,7 @@ services:
       - '3333:3333'
     depends_on:
       - gobarber-postgres
+      - gobarber-mongodb
     networks:
       - gobarber-network
 
@@ -31,6 +32,16 @@ services:
     networks:
       - gobarber-network
 
+  gobarber-mongodb:
+    image: mongo
+    container_name: gobarber-mongodb
+    ports:
+      - '27017:27017'
+    volumes:
+      - gobarber-mongodb-data:/data
+    networks:
+      - gobarber-network
+
   # gobarber-redis:
   #   image: bitnami/redis:latest
   #   container_name: gobarber-redis
@@ -45,6 +56,8 @@ services:
 volumes:
   gobarber-postgres-data:
     name: gobarber-postgres-data
+  gobarber-mongodb-data:
+    name: gobarber-mongodb-data
   # gobarber-redis-data:
       # name: gobarber-redis-data
 
