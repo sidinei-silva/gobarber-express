@@ -12,9 +12,9 @@ import Notification from '../schemas/Notification';
 
 // Jobs
 import CancellationMail from '../jobs/CancellationMail';
+import NewAppointmentMail from '../jobs/NewAppointmentMail';
 
 // Libs
-import Mail from '../../lib/Mail';
 import Queue from '../../lib/Queue';
 
 class AppointmentController {
@@ -113,25 +113,20 @@ class AppointmentController {
      * Notify appointment provider
      */
 
-    const { name } = await User.findByPk(req.userId);
+    const { name: user_name } = await User.findByPk(req.userId);
     const formattedDate = format(hourStart, "dd 'de' MMMM', às ' H:mm'h'", {
       locale: ptBR,
     });
 
     await Notification.create({
-      content: `Novo agendamento de ${name} para o dia ${formattedDate}`,
+      content: `Novo agendamento de ${user_name} para o dia ${formattedDate}`,
       user: provider_id,
     });
 
-    await Mail.sendMail({
-      to: `${isProvider.name} <${isProvider.email}>`,
-      subject: 'Novo Agendamento',
-      template: 'newAppointment',
-      context: {
-        provider: isProvider.name,
-        user: name,
-        date: formattedDate,
-      },
+    await Queue.add(NewAppointmentMail.key, {
+      isProvider,
+      user_name,
+      formattedDate,
     });
 
     return res.json(appointment);
