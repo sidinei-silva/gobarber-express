@@ -15,6 +15,7 @@ services:
     depends_on:
       - gobarber-postgres
       - gobarber-mongodb
+      - gobarber-redis
     networks:
       - gobarber-network
 
@@ -42,24 +43,23 @@ services:
     networks:
       - gobarber-network
 
-  # gobarber-redis:
-  #   image: bitnami/redis:latest
-  #   container_name: gobarber-redis
-  #   environment:
-  #     - ALLOW_EMPTY_PASSWORD=no
-  #     - REDIS_PASSWORD=${REDIS_PASSWORD}
-  #   volumes:
-  #     - gobarber-redis-data:/data
-  #   networks:
-  #     - gobarber-network
+  gobarber-redis:
+    image: redis:alpine
+    container_name: gobarber-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - gobarber-redis-data:/data
+    networks:
+      - gobarber-network
 
 volumes:
   gobarber-postgres-data:
     name: gobarber-postgres-data
   gobarber-mongodb-data:
     name: gobarber-mongodb-data
-  # gobarber-redis-data:
-      # name: gobarber-redis-data
+  gobarber-redis-data:
+      name: gobarber-redis-data
 
 networks:
   gobarber-network:
