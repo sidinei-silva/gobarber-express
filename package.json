@@ -6,7 +6,9 @@
   "scripts": {
     "start:production": "yarn start",
     "start:development": "nodemon src/server.js",
-    "start:debug": "nodemon --inspect=0.0.0.0 src/server.js"
+    "start:debug": "nodemon --inspect=0.0.0.0 src/server.js",
+    "queue:development": "nodemon src/queue.js",
+    "queue:production": "node src/queue.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

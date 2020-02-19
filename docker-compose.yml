@@ -19,6 +19,21 @@ services:
     networks:
       - gobarber-network
 
+  gobarber-worker:
+    build: .
+    image: gobarber
+    container_name: gobarber-worker
+    command: yarn queue:${QUEUE_ENV}
+    volumes:
+      - .:/home/node/api
+      - ./node_modules:/home/node/api/node_modules
+    ports:
+      - 3333
+    depends_on:
+      - gobarber-redis
+    networks:
+      - gobarber-network
+
   gobarber-postgres:
     image: postgres
     container_name: gobarber-postgres
