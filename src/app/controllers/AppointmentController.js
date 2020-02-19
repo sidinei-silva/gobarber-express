@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { startOfHour, parseISO, isBefore, format } from 'date-fns';
+import { startOfHour, parseISO, isBefore, format, subHours } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 
 // Models
@@ -9,6 +9,9 @@ import File from '../models/File';
 
 // Schemas
 import Notification from '../schemas/Notification';
+
+// Libs
+import Mail from '../../lib/Mail';
 
 class AppointmentController {
   async index(req, res) {
@@ -115,6 +118,81 @@ class AppointmentController {
       content: `Novo agendamento de ${name} para o dia ${formattedDate}`,
       user: provider_id,
     });
+
+    await Mail.sendMail({
+      to: `${isProvider.name} <${isProvider.email}>`,
+      subject: 'Novo Agendamento',
+      template: 'newAppointment',
+      context: {
+        provider: isProvider.name,
+        user: name,
+        date: formattedDate,
+      },
+    });
+
+    return res.json(appointment);
+  }
+
+  async delete(req, res) {
+    const appointment = await Appointment.findByPk(req.params.id, {
+      include: [
+        {
+          model: User,
+          as: 'provider',
+          attributes: ['name', 'email'],
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['name'],
+        },
+      ],
+    });
+
+    if (appointment.user_id !== req.userId) {
+      return res.status(401).json({
+        error: "You don't have permission to cancel this appointment",
+      });
+    }
+
+    const dateWithSub = subHours(appointment.date, 2);
+
+    if (isBefore(dateWithSub, new Date())) {
+      return res.status(401).json({
+        error: 'You can only cancel appointment 2 hours advance',
+      });
+    }
+
+    appointment.canceled_at = new Date();
+
+    await appointment.save();
+
+    /*
+     * Notify appointment provider
+     */
+
+    const hourStart = startOfHour(appointment.date);
+    const { name } = await User.findByPk(req.userId);
+    const formattedDate = format(hourStart, "dd 'de' MMMM', às ' H:mm'h'", {
+      locale: ptBR,
+    });
+
+    await Notification.create({
+      content: `Houve um cancelamento de ${name} do dia ${formattedDate}`,
+      user: appointment.provider_id,
+    });
+
+    await Mail.sendMail({
+      to: `${appointment.provider.name} <${appointment.provider.email}>`,
+      subject: 'Agendamento Cancelado',
+      template: 'cancellation',
+      context: {
+        provider: appointment.provider.name,
+        user: appointment.user.name,
+        date: formattedDate,
+      },
+    });
+
     return res.json(appointment);
   }
 }
