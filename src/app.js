@@ -1,7 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
-import * as Sentry from '@sentry/node';
+import 'express-async-errors';
 import path from 'path';
+import * as Sentry from '@sentry/node';
 import routes from './routes';
 
 import './database';
