@@ -5,6 +5,8 @@ services:
     build: .
     image: gobarber
     container_name: gobarber-api
+    environment:
+      - "TZ=${TIME_ZONE}"
     command: yarn start:${NODE_ENV}
     volumes:
       - .:/home/node/api
@@ -23,6 +25,8 @@ services:
     build: .
     image: gobarber
     container_name: gobarber-worker
+    environment:
+      - "TZ=${TIME_ZONE}"
     command: yarn queue:${QUEUE_ENV}
     volumes:
       - .:/home/node/api
@@ -38,6 +42,7 @@ services:
     image: postgres
     container_name: gobarber-postgres
     environment:
+      TZ: ${TIME_ZONE}
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
@@ -51,6 +56,8 @@ services:
   gobarber-mongodb:
     image: mongo
     container_name: gobarber-mongodb
+    environment:
+      TZ: ${TIME_ZONE}
     ports:
       - '27017:27017'
     volumes:
@@ -61,6 +68,8 @@ services:
   gobarber-redis:
     image: redis:alpine
     container_name: gobarber-redis
+    environment:
+      TZ: ${TIME_ZONE}
     ports:
       - '6379:6379'
     volumes:
