@@ -17,7 +17,6 @@ services:
     depends_on:
       - gobarber-postgres
       - gobarber-mongodb
-      - gobarber-redis
     networks:
       - gobarber-network
 
